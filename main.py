@@ -21,7 +21,8 @@ scale = 100
 
 mainCamera: Camera = Camera()
 
-environment: List[Cube] = [Cube()]
+environment: List[Cube] = []
+cube1: Cube = Cube(environment)
 
 while running:
     for event in pygame.event.get():
@@ -30,15 +31,18 @@ while running:
 
     screen.fill("black")
 
+    cube1.rotate({'x': 1, 'y': 2, 'z': 3})
+
+    print(environment[0])
+
     projectedCubes = orthographic_projection(environment)
 
     for cube in projectedCubes:
         for vertex in cube:
-            print(vertex)
-            pygame.draw.circle(screen, Color(255,255,255), ((screen_width/2 + (vertex[0] * 50)), (screen_height/2 + (vertex[1] * 50))), 5)
-            print(((screen_width + (vertex[0] * 50))/2), ((screen_height + (vertex[1]))/2))
+            pygame.draw.circle(screen, Color(255,255,255), ((screen_width/2 + (vertex[0] * scale)), (screen_height/2 + (vertex[1] * scale))), 5)
 
-    pygame.draw.line(screen, Color(255, 255, 255), (0, 100), (100, 100))
+    # pygame.draw.line(screen, Color(255, 255, 255), (0, 100), (100, 100))
+
 
     pygame.display.flip()
 
