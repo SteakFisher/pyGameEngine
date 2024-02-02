@@ -3,7 +3,6 @@ from typing import List
 import pygame
 from pygame import Color
 
-from utils.orthographic import orthographic_projection
 
 from classes.Cube import Cube
 from classes.Camera import Camera
@@ -31,18 +30,18 @@ while running:
 
     screen.fill("black")
 
-    cube1.rotate({'x': 1, 'y': 2, 'z': 3})
+    cube1.rotate({'x': 1, 'y': 2, 'z': 0})
 
-    print(environment[0])
 
-    projectedCubes = orthographic_projection(environment)
 
-    for cube in projectedCubes:
-        for vertex in cube:
-            pygame.draw.circle(screen, Color(255,255,255), ((screen_width/2 + (vertex[0] * scale)), (screen_height/2 + (vertex[1] * scale))), 5)
+    for item in environment:
+        projected = item.orthographic_project()
+
+        for vertex in projected:
+            pygame.draw.circle(screen, Color(255, 255, 255),
+                               ((screen_width / 2 + (vertex[0] * scale)), (screen_height / 2 + (vertex[1] * scale))), 5)
 
     # pygame.draw.line(screen, Color(255, 255, 255), (0, 100), (100, 100))
-
 
     pygame.display.flip()
 

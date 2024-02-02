@@ -1,4 +1,3 @@
-import math
 from typing import List
 
 from utils.types import Position, Rotation
@@ -56,3 +55,15 @@ class Cube:
             new.append(vertex)
 
         self.vertices = np.array(new)
+
+    def orthographic_project(self):
+        projectionMatrix = np.array([
+            [1, 0, 0],
+            [0, 1, 0]
+        ])
+
+        projected = []
+        for vertex in self.vertices:
+            projected.append(np.matmul(projectionMatrix, vertex))
+
+        return projected
