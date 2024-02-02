@@ -27,6 +27,27 @@ class Cube:
             [self.pos['x'] - size, self.pos['y'] - size, self.pos['z'] - size]
         ])
 
+        self.edges = [
+            [0,1],
+            [0,2],
+            [0,4],
+
+            [1,3],
+            [1,5],
+
+            [2,3],
+            [2,6],
+
+            [3,7],
+
+            [4,5],
+            [4,6],
+
+            [5,7],
+
+            [6,7]
+        ]
+
     def __str__(self) -> str:
         return f"{self.vertices}"
 
@@ -94,10 +115,19 @@ class Cube:
         screen.get_width()
         screen.get_height()
 
+        points = []
+
         for vertex in projected:
             pygame.draw.circle(screen, Color(255, 255, 255),
                                (
                                         (screen.get_width() / 2 + (vertex[0] * getConfig()['scale'])),
                                         (screen.get_height() / 2 + (vertex[1] * getConfig()['scale']))
                                        ), 5)
+            points.append((
+                                        (screen.get_width() / 2 + (vertex[0] * getConfig()['scale'])),
+                                        (screen.get_height() / 2 + (vertex[1] * getConfig()['scale']))
+            ))
 
+        for i in self.edges:
+            print(projected[i[0]][0], projected[i[0]][0])
+            pygame.draw.line(screen, Color(255, 255, 255), points[i[0]], points[i[1]], 2)
