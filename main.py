@@ -3,7 +3,6 @@ from typing import List
 import pygame
 from pygame import Color
 
-
 from classes.Cube import Cube
 from classes.Camera import Camera
 
@@ -32,14 +31,10 @@ while running:
 
     cube1.rotate({'x': 1, 'y': 2, 'z': 0})
 
-
+    cube1.scale({'x': 1.005, 'y': 1, 'z': 1})
 
     for item in environment:
-        projected = item.orthographic_project()
-
-        for vertex in projected:
-            pygame.draw.circle(screen, Color(255, 255, 255),
-                               ((screen_width / 2 + (vertex[0] * scale)), (screen_height / 2 + (vertex[1] * scale))), 5)
+        item.draw(screen)
 
     # pygame.draw.line(screen, Color(255, 255, 255), (0, 100), (100, 100))
 

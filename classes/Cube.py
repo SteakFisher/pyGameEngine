@@ -1,6 +1,10 @@
 from typing import List
 
-from utils.types import Position, Rotation
+import pygame
+from pygame import Color
+
+from utils.types import Position, Rotation, ScalingFactor
+from utils.config import getConfig
 import numpy as np
 
 
@@ -45,16 +49,32 @@ class Cube:
             [0, 0, 1]
         ])
 
-        new = []
+        rotated = []
 
         for vertex in self.vertices:
             vertex = np.matmul(zRotationMatrix, vertex)
             vertex = np.matmul(yRotationMatrix, vertex)
             vertex = np.matmul(xRotationMatrix, vertex)
 
-            new.append(vertex)
+            rotated.append(vertex)
 
-        self.vertices = np.array(new)
+        self.vertices = np.array(rotated)
+
+    def scale(self, factor: ScalingFactor):
+        scalingMatrix = np.array([
+            [factor['x'], 0, 0],
+            [0, factor['y'], 0],
+            [0, 0, factor['z']]
+        ])
+
+        scaled = []
+
+        for vertex in self.vertices:
+            scaledVertex = np.matmul(scalingMatrix, vertex)
+
+            scaled.append(scaledVertex)
+
+        self.vertices = np.array(scaled)
 
     def orthographic_project(self):
         projectionMatrix = np.array([
@@ -67,3 +87,17 @@ class Cube:
             projected.append(np.matmul(projectionMatrix, vertex))
 
         return projected
+
+    def draw(self, screen):
+        projected = self.orthographic_project()
+
+        screen.get_width()
+        screen.get_height()
+
+        for vertex in projected:
+            pygame.draw.circle(screen, Color(255, 255, 255),
+                               (
+                                        (screen.get_width() / 2 + (vertex[0] * getConfig()['scale'])),
+                                        (screen.get_height() / 2 + (vertex[1] * getConfig()['scale']))
+                                       ), 5)
+

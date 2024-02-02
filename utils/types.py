@@ -11,3 +11,9 @@ class Rotation(TypedDict):
     x: float
     y: float
     z: float
+
+
+class ScalingFactor(TypedDict):
+    x: float
+    y: float
+    z: float
