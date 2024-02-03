@@ -3,13 +3,14 @@ from typing import List
 import pygame
 from pygame import Color
 
+from utils.constants import getRotationMatrix, getScalingMatrix, getTranslationMatrix
 from utils.types import Position, Rotation, ScalingFactor
 from utils.config import getConfig
 import numpy as np
 
 
 class Cube:
-    def __init__(self, env: List, pos: Position = dict(x=0, y=0, z=0,w=1), size: float = 1) -> None:
+    def __init__(self, env: List, pos: Position = dict(x=0, y=0, z=0), size: float = 1) -> None:
         env.append(self)
         pos['w'] = 1
         self.pos = pos
@@ -52,26 +53,17 @@ class Cube:
         return f"{self.vertices}"
 
     def rotate(self, angle: Rotation) -> None:
-        xRotationMatrix = np.array([
-            [1, 0, 0, 0],
-            [0, np.cos(np.deg2rad(angle['x'])), -np.sin(np.deg2rad(angle['x'])), 0],
-            [0, np.sin(np.deg2rad(angle['x'])), np.cos(np.deg2rad(angle['x'])), 0],
-            [0, 0, 0, 1]
-        ])
+        prevPos = self.pos
 
-        yRotationMatrix = np.array([
-            [np.cos(np.deg2rad(angle['y'])), 0, np.sin(np.deg2rad(angle['y'])), 0],
-            [0, 1, 0, 0],
-            [-np.sin(np.deg2rad(angle['y'])), 0, np.cos(np.deg2rad(angle['y'])), 0],
-            [0, 0, 0, 1]
-        ])
+        self.translate({"x": -prevPos['x'], "y": -prevPos['y'], "z": 0, "w": -prevPos['z']})
 
-        zRotationMatrix = np.array([
-            [np.cos(np.deg2rad(angle['z'])), -np.sin(np.deg2rad(angle['z'])), 0, 0],
-            [np.sin(np.deg2rad(angle['z'])), np.cos(np.deg2rad(angle['z'])), 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1]
-        ])
+        print(self.pos)
+
+        xRotationMatrix = np.array(getRotationMatrix(angle, 'x'))
+
+        yRotationMatrix = np.array(getRotationMatrix(angle, 'y'))
+
+        zRotationMatrix = np.array(getRotationMatrix(angle, 'z'))
 
         rotated = []
 
@@ -84,13 +76,11 @@ class Cube:
 
         self.vertices = np.array(rotated)
 
+        self.translate(prevPos)
+
+
     def scale(self, factor: ScalingFactor):
-        scalingMatrix = np.array([
-            [factor['x'], 0, 0, 0],
-            [0, factor['y'], 0, 0],
-            [0, 0, factor['z'], 0],
-            [0, 0, 0, 1]
-        ])
+        scalingMatrix = np.array(getScalingMatrix(factor))
 
         scaled = []
 
@@ -101,10 +91,24 @@ class Cube:
 
         self.vertices = np.array(scaled)
 
+    def translate(self, translation: Position) -> None:
+        translationMatrix = np.array(getTranslationMatrix(translation))
+
+        translated = []
+
+        for vertex in self.vertices:
+            translatedVertex = np.matmul(translationMatrix, vertex)
+
+            translated.append(translatedVertex)
+
+        self.vertices = np.array(translated)
+
     def orthographic_project(self):
         projectionMatrix = np.array([
             [1, 0, 0, 0],
-            [0, 1, 0, 0]
+            [0, 1, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 1]
         ])
 
         projected = []
@@ -120,6 +124,8 @@ class Cube:
         screen.get_height()
 
         points = []
+
+        pygame.draw.circle(screen, Color(255, 255, 255),(screen.get_width()/2, screen.get_height()/2), 5)
 
         for vertex in projected:
             pygame.draw.circle(screen, Color(255, 255, 255),

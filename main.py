@@ -1,7 +1,6 @@
 from typing import List
 
 import pygame
-from pygame import Color
 
 from classes.Cube import Cube
 from classes.Camera import Camera
@@ -20,7 +19,7 @@ scale = 100
 mainCamera: Camera = Camera()
 
 environment: List[Cube] = []
-cube1: Cube = Cube(environment, {'x': 0, 'y': 0, 'z': 0, 'w': 1})
+cube1: Cube = Cube(environment, {'x': 3, 'y': 0, 'z': 0})
 
 while running:
     for event in pygame.event.get():
@@ -29,9 +28,10 @@ while running:
 
     screen.fill("black")
 
-    cube1.rotate({'x': 1, 'y': 2, 'z': 0})
-
-    cube1.scale({'x': 1.005, 'y': 1, 'z': 1})
+    cube1.translate({'x': cube1.pos['x'] + 0.000, 'y': cube1.pos['y'] + 0.000, 'z': cube1.pos['z'] + 0.000})
+    cube1.translate({"x": 0.001, "y": 0, "z": 0})
+    cube1.scale({'x': 1, 'y': 1, 'z': 1})
+    cube1.rotate({'x': 1, 'y': 2, 'z': 1})
 
     for item in environment:
         item.draw(screen)
