@@ -1,10 +1,11 @@
-from typing import TypedDict
+from typing import TypedDict, Optional
 
 
 class Position(TypedDict):
     x: float
     y: float
     z: float
+    w: Optional[float]
 
 
 class Rotation(TypedDict):
@@ -17,3 +18,4 @@ class ScalingFactor(TypedDict):
     x: float
     y: float
     z: float
+

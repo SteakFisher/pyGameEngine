@@ -20,7 +20,7 @@ scale = 100
 mainCamera: Camera = Camera()
 
 environment: List[Cube] = []
-cube1: Cube = Cube(environment)
+cube1: Cube = Cube(environment, {'x': 0, 'y': 0, 'z': 0, 'w': 1})
 
 while running:
     for event in pygame.event.get():
@@ -35,8 +35,6 @@ while running:
 
     for item in environment:
         item.draw(screen)
-
-    # pygame.draw.line(screen, Color(255, 255, 255), (0, 100), (100, 100))
 
     pygame.display.flip()
 

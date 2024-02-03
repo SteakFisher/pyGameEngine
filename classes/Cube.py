@@ -9,43 +9,43 @@ import numpy as np
 
 
 class Cube:
-    def __init__(self, env: List, pos: Position = dict(x=0, y=0, z=0), size: float = 1) -> None:
+    def __init__(self, env: List, pos: Position = dict(x=0, y=0, z=0,w=1), size: float = 1) -> None:
         env.append(self)
-
+        pos['w'] = 1
         self.pos = pos
 
         self.size = size
 
         self.vertices = np.array([
-            [self.pos['x'] + size, self.pos['y'] + size, self.pos['z'] + size],
-            [self.pos['x'] + size, self.pos['y'] - size, self.pos['z'] + size],
-            [self.pos['x'] - size, self.pos['y'] + size, self.pos['z'] + size],
-            [self.pos['x'] - size, self.pos['y'] - size, self.pos['z'] + size],
-            [self.pos['x'] + size, self.pos['y'] + size, self.pos['z'] - size],
-            [self.pos['x'] + size, self.pos['y'] - size, self.pos['z'] - size],
-            [self.pos['x'] - size, self.pos['y'] + size, self.pos['z'] - size],
-            [self.pos['x'] - size, self.pos['y'] - size, self.pos['z'] - size]
+            [self.pos['x'] + size, self.pos['y'] + size, self.pos['z'] + size, self.pos['w']],
+            [self.pos['x'] + size, self.pos['y'] - size, self.pos['z'] + size, self.pos['w']],
+            [self.pos['x'] - size, self.pos['y'] + size, self.pos['z'] + size, self.pos['w']],
+            [self.pos['x'] - size, self.pos['y'] - size, self.pos['z'] + size, self.pos['w']],
+            [self.pos['x'] + size, self.pos['y'] + size, self.pos['z'] - size, self.pos['w']],
+            [self.pos['x'] + size, self.pos['y'] - size, self.pos['z'] - size, self.pos['w']],
+            [self.pos['x'] - size, self.pos['y'] + size, self.pos['z'] - size, self.pos['w']],
+            [self.pos['x'] - size, self.pos['y'] - size, self.pos['z'] - size, self.pos['w']]
         ])
 
         self.edges = [
-            [0,1],
-            [0,2],
-            [0,4],
+            [0, 1],
+            [0, 2],
+            [0, 4],
 
-            [1,3],
-            [1,5],
+            [1, 3],
+            [1, 5],
 
-            [2,3],
-            [2,6],
+            [2, 3],
+            [2, 6],
 
-            [3,7],
+            [3, 7],
 
-            [4,5],
-            [4,6],
+            [4, 5],
+            [4, 6],
 
-            [5,7],
+            [5, 7],
 
-            [6,7]
+            [6, 7]
         ]
 
     def __str__(self) -> str:
@@ -53,21 +53,24 @@ class Cube:
 
     def rotate(self, angle: Rotation) -> None:
         xRotationMatrix = np.array([
-            [1, 0, 0],
-            [0, np.cos(np.deg2rad(angle['x'])), -np.sin(np.deg2rad(angle['x']))],
-            [0, np.sin(np.deg2rad(angle['x'])), np.cos(np.deg2rad(angle['x']))]
+            [1, 0, 0, 0],
+            [0, np.cos(np.deg2rad(angle['x'])), -np.sin(np.deg2rad(angle['x'])), 0],
+            [0, np.sin(np.deg2rad(angle['x'])), np.cos(np.deg2rad(angle['x'])), 0],
+            [0, 0, 0, 1]
         ])
 
         yRotationMatrix = np.array([
-            [np.cos(np.deg2rad(angle['y'])), 0, np.sin(np.deg2rad(angle['y']))],
-            [0, 1, 0],
-            [-np.sin(np.deg2rad(angle['y'])), 0, np.cos(np.deg2rad(angle['y']))]
+            [np.cos(np.deg2rad(angle['y'])), 0, np.sin(np.deg2rad(angle['y'])), 0],
+            [0, 1, 0, 0],
+            [-np.sin(np.deg2rad(angle['y'])), 0, np.cos(np.deg2rad(angle['y'])), 0],
+            [0, 0, 0, 1]
         ])
 
         zRotationMatrix = np.array([
-            [np.cos(np.deg2rad(angle['z'])), -np.sin(np.deg2rad(angle['z'])), 0],
-            [np.sin(np.deg2rad(angle['z'])), np.cos(np.deg2rad(angle['z'])), 0],
-            [0, 0, 1]
+            [np.cos(np.deg2rad(angle['z'])), -np.sin(np.deg2rad(angle['z'])), 0, 0],
+            [np.sin(np.deg2rad(angle['z'])), np.cos(np.deg2rad(angle['z'])), 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
         ])
 
         rotated = []
@@ -83,9 +86,10 @@ class Cube:
 
     def scale(self, factor: ScalingFactor):
         scalingMatrix = np.array([
-            [factor['x'], 0, 0],
-            [0, factor['y'], 0],
-            [0, 0, factor['z']]
+            [factor['x'], 0, 0, 0],
+            [0, factor['y'], 0, 0],
+            [0, 0, factor['z'], 0],
+            [0, 0, 0, 1]
         ])
 
         scaled = []
@@ -99,8 +103,8 @@ class Cube:
 
     def orthographic_project(self):
         projectionMatrix = np.array([
-            [1, 0, 0],
-            [0, 1, 0]
+            [1, 0, 0, 0],
+            [0, 1, 0, 0]
         ])
 
         projected = []
@@ -120,14 +124,13 @@ class Cube:
         for vertex in projected:
             pygame.draw.circle(screen, Color(255, 255, 255),
                                (
-                                        (screen.get_width() / 2 + (vertex[0] * getConfig()['scale'])),
-                                        (screen.get_height() / 2 + (vertex[1] * getConfig()['scale']))
-                                       ), 5)
+                                   (screen.get_width() / 2 + (vertex[0] * getConfig()['scale'])),
+                                   (screen.get_height() / 2 + (vertex[1] * getConfig()['scale']))
+                               ), 5)
             points.append((
-                                        (screen.get_width() / 2 + (vertex[0] * getConfig()['scale'])),
-                                        (screen.get_height() / 2 + (vertex[1] * getConfig()['scale']))
+                (screen.get_width() / 2 + (vertex[0] * getConfig()['scale'])),
+                (screen.get_height() / 2 + (vertex[1] * getConfig()['scale']))
             ))
 
         for i in self.edges:
-            print(projected[i[0]][0], projected[i[0]][0])
             pygame.draw.line(screen, Color(255, 255, 255), points[i[0]], points[i[1]], 2)
