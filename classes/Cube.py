@@ -3,6 +3,7 @@ from typing import List
 import pygame
 from pygame import Color
 
+from classes.Camera import Camera
 from utils.constants import getRotationMatrix, getScalingMatrix, getTranslationMatrix
 from utils.types import Position, Rotation, ScalingFactor
 from utils.config import getConfig
@@ -56,7 +57,6 @@ class Cube:
         prevPos = self.pos
 
         self.translate({"x": 0, "y": 0, "z": 0, "w": 1})
-
 
         xRotationMatrix = np.array(getRotationMatrix(angle, 'x'))
 
@@ -128,8 +128,32 @@ class Cube:
 
         return projected
 
-    def draw(self, screen):
+    def draw(self, screen, camera: Camera):
+        oldPos = self.pos
+        oldPoints = self.vertices
+
+        cameraTranslationMatrix = getTranslationMatrix(camera.pos)
+        cameraRotationMatrixX = getRotationMatrix(camera.rot, 'x')
+        cameraRotationMatrixY = getRotationMatrix(camera.rot, 'y')
+        cameraRotationMatrixZ = getRotationMatrix(camera.rot, 'z')
+
+        cameraMatrix = np.matmul(np.array(cameraRotationMatrixZ), np.array(cameraTranslationMatrix))
+        cameraMatrix = np.matmul(np.array(cameraRotationMatrixY), np.array(cameraMatrix))
+        cameraMatrix = np.matmul(np.array(cameraRotationMatrixX), np.array(cameraMatrix))
+
+        cameraInverse = np.linalg.inv(cameraMatrix)
+
+        inversed = []
+
+        for vertex in self.vertices:
+            inversed.append(np.matmul(cameraInverse, vertex))
+
+        self.vertices = np.array(inversed)
+
         projected = self.orthographic_project()
+
+        self.vertices = oldPoints
+        self.pos = oldPos
 
         screen.get_width()
         screen.get_height()
