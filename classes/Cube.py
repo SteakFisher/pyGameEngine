@@ -10,9 +10,9 @@ import numpy as np
 
 
 class Cube:
-    def __init__(self, env: List, pos: Position = dict(x=0, y=0, z=0), size: float = 1) -> None:
+    def __init__(self, env: List, pos: Position = dict(x=0, y=0, z=0, w=1), size: float = 1) -> None:
         env.append(self)
-        pos['w'] = 1
+
         self.pos = pos
 
         self.size = size
@@ -55,9 +55,8 @@ class Cube:
     def rotate(self, angle: Rotation) -> None:
         prevPos = self.pos
 
-        self.translate({"x": -prevPos['x'], "y": -prevPos['y'], "z": 0, "w": -prevPos['z']})
+        self.translate({"x": 0, "y": 0, "z": 0, "w": 1})
 
-        print(self.pos)
 
         xRotationMatrix = np.array(getRotationMatrix(angle, 'x'))
 
@@ -78,7 +77,6 @@ class Cube:
 
         self.translate(prevPos)
 
-
     def scale(self, factor: ScalingFactor):
         scalingMatrix = np.array(getScalingMatrix(factor))
 
@@ -92,7 +90,19 @@ class Cube:
         self.vertices = np.array(scaled)
 
     def translate(self, translation: Position) -> None:
-        translationMatrix = np.array(getTranslationMatrix(translation))
+
+        position = Position()
+
+        position['x'] = translation['x'] - self.pos['x']
+        position['y'] = translation['y'] - self.pos['y']
+        position['z'] = translation['z'] - self.pos['z']
+
+        if position['x'] == 0 and position['y'] == 0 and position['z'] == 0:
+            return
+
+        position['w'] = 1
+
+        translationMatrix = np.array(getTranslationMatrix(position))
 
         translated = []
 
@@ -101,6 +111,7 @@ class Cube:
 
             translated.append(translatedVertex)
 
+        self.pos = translation
         self.vertices = np.array(translated)
 
     def orthographic_project(self):
@@ -125,7 +136,7 @@ class Cube:
 
         points = []
 
-        pygame.draw.circle(screen, Color(255, 255, 255),(screen.get_width()/2, screen.get_height()/2), 5)
+        pygame.draw.circle(screen, Color(255, 255, 255), (screen.get_width() / 2, screen.get_height() / 2), 5)
 
         for vertex in projected:
             pygame.draw.circle(screen, Color(255, 255, 255),
