@@ -1,6 +1,6 @@
 import numpy as np
 
-from utils.types import Rotation, ScalingFactor, Position
+from utils.types import Rotation, Scaling, Position
 
 
 def getRotationMatrix(angle: Rotation, a):
@@ -29,19 +29,10 @@ def getRotationMatrix(angle: Rotation, a):
         ]
 
 
-def getScalingMatrix(factor: ScalingFactor):
+def getScalingMatrix(factor: Scaling):
     return [
         [factor['x'], 0, 0, 0],
         [0, factor['y'], 0, 0],
         [0, 0, factor['z'], 0],
-        [0, 0, 0, 1]
-    ]
-
-
-def getTranslationMatrix(pos: Position):
-    return [
-        [1, 0, 0, pos['x']],
-        [0, 1, 0, pos['y']],
-        [0, 0, 1, pos['z']],
         [0, 0, 0, 1]
     ]

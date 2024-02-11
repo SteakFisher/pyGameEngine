@@ -1,3 +1,4 @@
+import math
 from typing import List
 
 import pygame
@@ -114,17 +115,22 @@ class Cube:
         self.pos = translation
         self.vertices = np.array(translated)
 
-    def orthographic_project(self):
-        projectionMatrix = np.array([
-            [1, 0, 0, 0],
-            [0, 1, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 1]
-        ])
+    def orthographic_project(self, camera: Camera):
 
         projected = []
+        z = self.pos['z'] - camera.pos['z']
         for vertex in self.vertices:
+            projectionMatrix = np.array([
+                [z, 0, 0, 0],
+                [0, z, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 1]
+            ])
+
+            # print(vertex)
+            # vertex = np.divide(vertex, np.absolute(vertex[2]))
             projected.append(np.matmul(projectionMatrix, vertex))
+            print(vertex)
 
         return projected
 
@@ -150,7 +156,7 @@ class Cube:
 
         self.vertices = np.array(inversed)
 
-        projected = self.orthographic_project()
+        projected = self.orthographic_project(camera)
 
         self.vertices = oldPoints
         self.pos = oldPos
