@@ -169,6 +169,7 @@ class Cube:
         pygame.draw.circle(screen, Color(255, 255, 255), (screen.get_width() / 2, screen.get_height() / 2), 5)
 
         for vertex in projected:
+
             pygame.draw.circle(screen, Color(255, 255, 255),
                                (
                                    (screen.get_width() / 2 + (vertex[0] * getConfig()['scale'])),

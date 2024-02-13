@@ -7,10 +7,31 @@ from utils.types import Rotation, Position, Scaling
 
 
 class Cube(Object):
-    def __init__(self, env: list[Object], screen: pygame.Surface, pos: Position = Position(), rot: Rotation = Rotation(),
+    def __init__(self, env: list[Object], screen: pygame.Surface, pos: Position = Position(),
+                 rot: Rotation = Rotation(),
                  scale: Scaling = Scaling()):
         super().__init__(env, pos, rot, scale)
         self.screen = screen
+        self.edges = [
+            [0, 1],
+            [0, 2],
+            [0, 4],
+
+            [1, 3],
+            [1, 5],
+
+            [2, 3],
+            [2, 6],
+
+            [3, 7],
+
+            [4, 5],
+            [4, 6],
+
+            [5, 7],
+
+            [6, 7]
+        ]
 
     @staticmethod
     def __getUnitCube():
@@ -41,32 +62,26 @@ class Cube(Object):
         vertices: numpy.ndarray = self.__getUnitCube()
 
         transformedVertices: numpy.ndarray = self.__transformVertices(vertices)
-        print(transformedVertices)
 
-        projectedVertices = []
+        orthographicProjectionMatrix = numpy.array([
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 1]
+        ])
+
+        pixels = []
 
         for vertex in transformedVertices:
-            orthographicProjectionMatrix = numpy.array([
-                [1, 0, 0, 0],
-                [0, 1, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 1]
-            ])
+            vertex = numpy.dot(orthographicProjectionMatrix, vertex) / vertex[2]
 
-            perspectiveProjectionMatrix = numpy.array([
-                [3, 0, 0, 0],
-                [0, 3, 0, 0],
-                [0, 0, 11, -24],
-                [0, 0, 1, 0]
-            ])
+            pixel = (int(screen.get_width() / 2 + vertex[0] * 100), int(screen.get_height() / 2 + vertex[1] * 100))
+            pixels.append(pixel)
 
-            finalPoint = numpy.dot(orthographicProjectionMatrix, numpy.dot(perspectiveProjectionMatrix, vertex))
-            finalPoint = finalPoint / finalPoint[3]
-            projectedVertices.append(finalPoint)
+            pygame.draw.circle(screen, Color(255, 255, 255), pixel, 5)
 
-            pygame.draw.circle(screen, Color(255, 255, 255), ((screen.get_width() / 2) + (finalPoint[0] * 50), (screen.get_height() / 2) + (finalPoint[1] * 50)), 5)
-
-        print("Projected matrix: \n", numpy.array(projectedVertices))
+        for i in self.edges:
+            pygame.draw.line(screen, Color(255, 255, 255), pixels[i[0]], pixels[i[1]], 2)
 
     def tick(self):
         self.draw()
