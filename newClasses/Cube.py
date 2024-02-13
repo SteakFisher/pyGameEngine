@@ -56,6 +56,10 @@ class Cube(Object):
             transformedVertices.append(vertex)
         return numpy.array(transformedVertices)
 
+    def __drawEdges(self, pixels):
+        for i in self.edges:
+            pygame.draw.line(self.screen, Color(255, 255, 255), pixels[i[0]], pixels[i[1]], 2)
+
     def draw(self):
         screen = self.screen
 
@@ -63,25 +67,47 @@ class Cube(Object):
 
         transformedVertices: numpy.ndarray = self.__transformVertices(vertices)
 
-        orthographicProjectionMatrix = numpy.array([
-            [1, 0, 0, 0],
-            [0, 1, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 1]
+        fov = 110  # Field of view in degrees
+        aspect_ratio = screen.get_width() / screen.get_height()  # Aspect ratio of the screen
+        near = 0.1  # Distance to the near clipping plane
+        far = 100.0  # Distance to the far clipping plane
+
+        f = 1 / numpy.tan(fov / 2 / 180 * numpy.pi)  # Calculate projection factor
+        # projection_matrix = numpy.array([
+        #     [-f / aspect_ratio, 0, 0, 0],
+        #     [0, -f, 0, 0],
+        #     [0, 0, (far + near) / (far - near), 1],
+        #     [0, 0, -2 * far * near / (far - near), 0]
+        # ])
+
+        f = 1 / numpy.tan(fov / 2 / 180 * numpy.pi)  # Calculate projection factor
+        projection_matrix = numpy.array([
+            [f / aspect_ratio, 0, 0, 0],
+            [0, f, 0, 0],
+            [0, 0, (far + near) / (far - near), 1],
+            [0, 0, -2 * far * near / (far - near), 0]
         ])
 
         pixels = []
 
         for vertex in transformedVertices:
-            vertex = numpy.dot(orthographicProjectionMatrix, vertex) / vertex[2]
+            vertex = numpy.dot(projection_matrix, vertex)
 
-            pixel = (int(screen.get_width() / 2 + vertex[0] * 100), int(screen.get_height() / 2 + vertex[1] * 100))
+            print(vertex / vertex[3])
+
+            vertex /= vertex[3]
+
+            screen_x = vertex[0] * screen.get_width() / 2 + screen.get_width() / 2
+            screen_y = vertex[1] * screen.get_height() / 2 + screen.get_height() / 2
+
+            pixel = (screen_x, screen_y)
             pixels.append(pixel)
 
             pygame.draw.circle(screen, Color(255, 255, 255), pixel, 5)
 
-        for i in self.edges:
-            pygame.draw.line(screen, Color(255, 255, 255), pixels[i[0]], pixels[i[1]], 2)
+        self.__drawEdges(pixels)
+
+
 
     def tick(self):
         self.draw()
