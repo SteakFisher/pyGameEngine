@@ -68,23 +68,38 @@ class Cube(Object):
         for i in self.edges:
             pygame.draw.line(self.screen, Color(255, 255, 255), pixels[i[0]], pixels[i[1]], 2)
 
-    def __drawFaces(self, pixels):
+    def __drawFace(self, pixels, face, color):
+        surface = []
+        for edge in face:
+            surface.append(pixels[self.edges[edge][0]])
+            surface.append(pixels[self.edges[edge][1]])
+
+        pygame.draw.polygon(self.screen, color, tuple(surface))
+
+    def __drawFaces(self, pixels, transformedVertices):
         # pygame.draw.polygon(self.screen, Color(0,255,0), ((15, 65), (86, 125), (250, 375), (400, 25), (60, 540)))
 
         Colors = [Color(0, 0, 0), Color(0, 0, 255), Color(0, 255, 0), Color(0, 255, 255), Color(255, 0, 0),
                   Color(255, 0, 255), Color(255, 255, 0), Color(255, 255, 255)]
 
+        faces = self.faces
+
+        indices = []
+
+        for face in faces:
+            sum = 0
+            for edge in face:
+                for index, vertex in enumerate(self.edges[edge]):
+                    sum += transformedVertices[vertex][2]
+            indices.append((face, sum/4))
+
+        indices = sorted(indices, key=lambda x: x[1], reverse=True)
+
         i = 0
 
-        for face in self.faces:
-            surface = []
-            for edge in face:
-                surface.append(pixels[self.edges[edge][0]])
-                surface.append(pixels[self.edges[edge][1]])
-
-            pygame.draw.polygon(self.screen, Colors[i], tuple(surface))
+        for index in indices:
+            self.__drawFace(pixels, index[0], Colors[i])
             i += 1
-
 
     def draw(self):
         screen = self.screen
@@ -116,6 +131,9 @@ class Cube(Object):
 
         pixels = []
 
+
+        # transformedVertices = sorted(transformedVertices, key=lambda x: x[2])
+
         for vertex in transformedVertices:
             vertex = numpy.dot(projection_matrix, vertex)
 
@@ -130,7 +148,7 @@ class Cube(Object):
             pygame.draw.circle(screen, Color(255, 255, 255), pixel, 5)
 
         self.__drawEdges(pixels)
-        self.__drawFaces(pixels)
+        self.__drawFaces(pixels, transformedVertices)
 
     def tick(self):
         self.draw()

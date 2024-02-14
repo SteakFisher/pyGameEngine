@@ -26,7 +26,7 @@ while running:
 
     screen.fill("black")
 
-    cube1.setPosition(cube1.pos + Position(0.01, 0, 0.01))
+    cube1.setPosition(cube1.pos + Position(0.0, 0, 0.01))
     cube1.setRotation(cube1.rot + Rotation(1, 1, 1))
     # cube1.setScale(cube1.scale + Scaling(0.01, 0.01, 0.01))
 
