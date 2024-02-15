@@ -7,11 +7,12 @@ from utils.types import Rotation, Position, Scaling
 
 
 class Cube(Object):
-    def __init__(self, env: list[Object], screen: pygame.Surface, pos: Position = Position(),
+    def __init__(self, env: list[Object], screen: pygame.Surface, camera, pos: Position = Position(),
                  rot: Rotation = Rotation(),
                  scale: Scaling = Scaling()):
         super().__init__(env, pos, rot, scale)
         self.screen = screen
+        self.camera = camera
         self.edges = [
             [0, 1],
             [0, 2],
@@ -64,19 +65,23 @@ class Cube(Object):
             transformedVertices.append(vertex)
         return numpy.array(transformedVertices)
 
-    def __drawEdges(self, pixels):
+    def drawEdges(self, pixels):
         for i in self.edges:
-            pygame.draw.line(self.screen, Color(255, 255, 255), pixels[i[0]], pixels[i[1]], 2)
+            if pixels[i[0]] is not None and pixels[i[1]] is not None:
+                pygame.draw.line(self.screen, Color(255, 255, 255), pixels[i[0]], pixels[i[1]], 2)
 
     def __drawFace(self, pixels, face, color):
         surface = []
         for edge in face:
+            if pixels[self.edges[edge][0]] is None or pixels[self.edges[edge][1]] is None:
+                return
+
             surface.append(pixels[self.edges[edge][0]])
             surface.append(pixels[self.edges[edge][1]])
 
         pygame.draw.polygon(self.screen, color, tuple(surface))
 
-    def __drawFaces(self, pixels, transformedVertices):
+    def drawFaces(self, pixels, transformedVertices):
         # pygame.draw.polygon(self.screen, Color(0,255,0), ((15, 65), (86, 125), (250, 375), (400, 25), (60, 540)))
 
         Colors = [Color(0, 0, 0), Color(0, 0, 255), Color(0, 255, 0), Color(0, 255, 255), Color(255, 0, 0),
@@ -86,22 +91,21 @@ class Cube(Object):
 
         indices = []
 
-        for face in faces:
-            sum = 0
+        for i, face in enumerate(faces):
+            sumVertices = 0
             for edge in face:
                 for index, vertex in enumerate(self.edges[edge]):
-                    sum += transformedVertices[vertex][2]
-            indices.append((face, sum/4))
+                    sumVertices += transformedVertices[vertex][2]
+            indices.append((face, sumVertices / 4, i))
 
         indices = sorted(indices, key=lambda x: x[1], reverse=True)
 
         i = 0
 
         for index in indices:
-            self.__drawFace(pixels, index[0], Colors[i])
-            i += 1
+            self.__drawFace(pixels, index[0], Colors[index[2]])
 
-    def draw(self):
+    def render(self):
         screen = self.screen
 
         vertices: numpy.ndarray = self.__getUnitCube()
@@ -113,7 +117,7 @@ class Cube(Object):
         near = 0.1  # Distance to the near clipping plane
         far = 100.0  # Distance to the far clipping plane
 
-        f = 1 / numpy.tan(fov / 2 / 180 * numpy.pi)  # Calculate projection factor
+        # f = 1 / numpy.tan(fov / 2 / 180 * numpy.pi)  # Calculate projection factor
         # projection_matrix = numpy.array([
         #     [-f / aspect_ratio, 0, 0, 0],
         #     [0, -f, 0, 0],
@@ -121,35 +125,8 @@ class Cube(Object):
         #     [0, 0, -2 * far * near / (far - near), 0]
         # ])
 
-        f = 1 / numpy.tan(fov / 2 / 180 * numpy.pi)  # Calculate projection factor
-        projection_matrix = numpy.array([
-            [f / aspect_ratio, 0, 0, 0],
-            [0, f, 0, 0],
-            [0, 0, (far + near) / (far - near), 1],
-            [0, 0, -2 * far * near / (far - near), 0]
-        ])
-
-        pixels = []
-
-
-        # transformedVertices = sorted(transformedVertices, key=lambda x: x[2])
-
-        for vertex in transformedVertices:
-            vertex = numpy.dot(projection_matrix, vertex)
-
-            vertex /= vertex[3]
-
-            screen_x = vertex[0] * screen.get_width() / 2 + screen.get_width() / 2
-            screen_y = vertex[1] * screen.get_height() / 2 + screen.get_height() / 2
-
-            pixel = (screen_x, screen_y)
-            pixels.append(pixel)
-
-            pygame.draw.circle(screen, Color(255, 255, 255), pixel, 5)
-
-        self.__drawEdges(pixels)
-        self.__drawFaces(pixels, transformedVertices)
+        self.camera.draw(self, transformedVertices)
 
     def tick(self):
-        self.draw()
+        self.render()
         super().tick()

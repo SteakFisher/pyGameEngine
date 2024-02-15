@@ -3,6 +3,7 @@ from typing import List
 import pygame
 from pygame import Color
 
+from newClasses.Camera import Camera
 from newClasses.Cube import Cube
 from newClasses.Object import Object
 from utils.types import Position, Rotation, Scaling
@@ -17,7 +18,10 @@ clock = pygame.time.Clock()
 running = True
 
 environment: List[Object] = []
-cube1: Cube = Cube(environment, screen, Position(0, 0, 7), Rotation(0, 0, 0))
+
+camera: Camera = Camera(environment, pos=Position(0,0,-4))
+
+cube1: Cube = Cube(environment, screen, camera, Position(0, 0, 8), Rotation(0, 0, 0))
 
 while running:
     for event in pygame.event.get():
@@ -26,7 +30,10 @@ while running:
 
     screen.fill("black")
 
-    cube1.setPosition(cube1.pos + Position(0.0, 0, 0.01))
+    # camera.setPosition(camera.pos + Position(0, 0, 0.05))
+    # camera.setRotation(camera.rot + Rotation(1, 0 ,0))
+
+    # cube1.setPosition(cube1.pos + Position(0.01, 0, 0.0))
     cube1.setRotation(cube1.rot + Rotation(1, 1, 1))
     # cube1.setScale(cube1.scale + Scaling(0.01, 0.01, 0.01))
 
