@@ -39,8 +39,6 @@ class Camera(Object):
 
         transformedVertices = np.array(inversed)
 
-        print(transformedVertices)
-
         for vertex in transformedVertices:
             if vertex[2] < 0:
                 pixels.append(None)
