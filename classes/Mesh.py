@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 from pygame import Color
 
+from classes.Camera import Camera
 from utils.types import Rotation, Position, Scaling
 
 
@@ -36,10 +37,13 @@ class Mesh:
         self.__vertices = np.array(self.__vertices)
         self.__faces = self.__faces
 
-    def draw(self, camera):
+    def draw(self, camera: Camera):
         vertices = self.__scale(self.__vertices)
         vertices = self.__rotate(vertices)
         vertices = self.__translate(vertices)
+
+        cameraTransformMatrix = camera.getInverseTransformationMatrix()
+        vertices = np.array([np.dot(cameraTransformMatrix, vertex) for vertex in vertices])
 
         vertices = self.__project(vertices, camera)
 
@@ -51,15 +55,22 @@ class Mesh:
         for index, face in enumerate(faces):
             screen = pygame.display.get_surface()
             color = face['color']
-
+            breakFlag = False
             surface = []
             for vertexIndex in face['face']:
                 vertex = vertices[vertexIndex - 1]
+
+                if vertex[3] == 0:
+                    breakFlag = True
+                    break
 
                 screen_x = vertex[0] * screen.get_width() / 2 + screen.get_width() / 2
                 screen_y = vertex[1] * screen.get_height() / 2 + screen.get_height() / 2
 
                 surface.append((screen_x, screen_y))
+            if breakFlag:
+                continue
+
             pygame.draw.polygon(screen, color, surface)
 
     def __translate(self, vertices):
@@ -126,13 +137,12 @@ class Mesh:
         vertices = []
 
         for vertex in transformedVertices:
-            vertex = np.dot(projection_matrix, vertex) / vertex[3]
+            if vertex[2] < 0:
+                vertices.append([0, 0, 0, 0])
+                continue
 
-            screen_x = vertex[0] * screen.get_width() / 2 + screen.get_width() / 2
-            screen_y = vertex[1] * screen.get_height() / 2 + screen.get_height() / 2
-
-            pixel = (screen_x, screen_y)
-
+            vertex = np.dot(projection_matrix, vertex)
+            vertex /= vertex[3]
 
             vertices.append(vertex)
 
