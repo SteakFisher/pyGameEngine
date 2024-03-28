@@ -7,5 +7,6 @@
 - Translating a model
 - Rotating the camera 
 - Translating the camera
+- Runs so slow, I could probably interpret it faster with pen and paper
 
 ![image](https://github.com/SteakFisher/pyGameEngine/assets/88953813/34000a32-d85f-4d5e-a100-dc45749edb53)
