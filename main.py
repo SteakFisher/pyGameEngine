@@ -14,7 +14,8 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 running = True
 
-mesh = Mesh('monkey.obj', scale=Scaling(0.5, 0.5, 0.5))
+mesh = Mesh('cube.obj', scale=Scaling(0.5, 0.5, 0.5))
+print(mesh)
 camera: Camera = Camera(pos=Position(0, 0, -4))
 
 while running:
@@ -25,6 +26,7 @@ while running:
     screen.fill("black")
 
     mesh.rot.y = mesh.rot.y + 1
+    camera.rot.y = camera.rot.y + 1
     # mesh.pos.z += 1
     # camera.pos.z -= 1
     # mesh.pos.x = mesh.pos.x + 0.01

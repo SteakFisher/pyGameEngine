@@ -9,7 +9,7 @@ class Camera:
         self.rot = rot
 
     def getInverseTransformationMatrix(self):
-        return numpy.linalg.inv(numpy.dot(self.__getRotationMatrix(), self.__getTranslationMatrix()))
+        return numpy.linalg.inv(numpy.dot(self.__getTranslationMatrix(), self.__getRotationMatrix()))
 
     def __getTranslationMatrix(self):
         position = self.pos
