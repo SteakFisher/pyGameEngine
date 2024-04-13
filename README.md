@@ -9,4 +9,6 @@
 - Translating the camera
 - Runs so slow, I could probably interpret it faster with pen and paper
 
-![image](https://github.com/SteakFisher/pyGameEngine/assets/88953813/34000a32-d85f-4d5e-a100-dc45749edb53)
+
+https://github.com/SteakFisher/pyGameEngine/assets/88953813/c46c135e-be31-45b9-8aff-5bc909333289
+
